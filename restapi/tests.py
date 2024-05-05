@@ -1,5 +1,6 @@
 from django.test import TestCase
 from . import models
+from django.urls import reverse
 # Create your tests here.
 
 
@@ -14,3 +15,23 @@ class TestModels(TestCase):
         self.assertEqual("Music", inserted_expense.category)
 
 
+class TestViews(TestCase):
+    def test_expense_create(self):
+        payload = {
+            "amount": 50,
+            "merchant": "AT & T",
+            "description": "Cell Phone Subscription",
+            "category": "Utilities"
+        }
+
+        res = self.client.post(reverse("restapi:expense-list-create"), payload, format="json")
+
+        self.assertEqual(201 , res.status_code)
+
+        json_res = res.json()
+
+        self.assertEqual(payload["amount"] , json_res["amount"])
+        self.assertEqual(payload["merchant"] , json_res["merchant"])
+        self.assertEqual(payload["description"] , json_res["description"])
+        self.assertEqual(payload["category"] , json_res["category"])
+        self.assertIsInstance(json_res["id"] , int)
